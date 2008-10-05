@@ -10,6 +10,7 @@ rescue LoadError
 end
 
 require 'optparse'
+require 'pathname'
 
 # NOTE: the option -p/--path= is given as an example, and should probably be replaced in your application.
 
@@ -48,6 +49,8 @@ BANNER
           "Show powder cloud, ie. package hierarchy and installation order") { |OPTIONS[:cloud]| }
   opts.on("-f", "--force",
           "Force installation of all packages even if it is detected that it has been previously installed") { |OPTIONS[:force]| }
+  opts.on("-d", "--deploy_dir=PATH", String,
+          "Specifies the deploy directory to build") { |OPTIONS[:deploy_dir]| }
   opts.on("-h", "--help",
           "Show this help message.") { puts opts; exit }
   opts.parse!(ARGV)
@@ -69,6 +72,12 @@ def powder_cloud(options)
   Sprinkle::OPTIONS[:cloud] = OPTIONS[:cloud] || false
 end
 
+def set_deploy_dir(options)
+  Sprinkle::OPTIONS[:deploy_dir] = OPTIONS[:deploy_dir] ? 
+               Pathname.new(OPTIONS[:deploy_dir]).absolute? ? OPTIONS[:deploy_dir] : File.join(Dir.pwd,OPTIONS[:deploy_dir])  :
+               nil  
+end
+
 def log_level(options)
   Object.logger.level = ActiveSupport::BufferedLogger::Severity::DEBUG if options[:verbose]
 end
@@ -82,5 +91,15 @@ force_mode(OPTIONS)
 operation_mode(OPTIONS)
 powder_cloud(OPTIONS)
 log_level(OPTIONS)
+set_deploy_dir(OPTIONS)
 
 Sprinkle::Script.sprinkle File.read(powder), powder
+
+unless Sprinkle::OPTIONS[:deploy_dir].nil?
+  File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.tcsh'), 'w') do |file|
+    file.write %Q!
+      setenv DEPLOY_HOME #{Sprinkle::OPTIONS[:deploy_dir]}
+      source /home/cad/share/deploy_scripts/deploy.source
+    !    
+  end
+end

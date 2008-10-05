@@ -13,5 +13,9 @@ module Sprinkle
   # 99% of the time, however, the two built-in actors Sprinkle::Actors::Capistrano
   # and Sprinkle::Actors::Vlad will be enough.
   module Actors
+
+    def post_process
+    end
+
   end
 end

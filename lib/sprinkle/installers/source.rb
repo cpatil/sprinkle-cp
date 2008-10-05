@@ -66,6 +66,19 @@ module Sprinkle
 
       protected
 
+        def custom_install(cmd)
+          (@options[:custom_install] ||= []) << cmd
+        end
+
+        def custom_stage(stage_sym, cmd)
+          @options[:custom_stage_commands] ||= {}
+          (@options[:custom_stage_commands][stage_sym] ||= []) << cmd
+        end
+
+        def custom_stage_commands(stage_sym)
+          dress @options[:custom_stage_commands][stage_sym], stage_sym
+        end
+
         def install_sequence #:nodoc:
           prepare + download + extract + configure + build + install
         end
@@ -77,6 +90,7 @@ module Sprinkle
         end
 
         def prepare_commands #:nodoc:
+          return custom_stage_commands(:prepare) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:prepare]
           raise 'No installation area defined' unless @options[:prefix]
           raise 'No build area defined' unless @options[:builds]
           raise 'No source download area defined' unless @options[:archives]
@@ -86,16 +100,25 @@ module Sprinkle
             "mkdir -p #{@options[:archives]}" ]
         end
 
-        def download_commands #:nodoc:
-          [ "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}" ]
+        def download_commands #:nodoc:          
+          #[ "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}" ]
+          return custom_stage_commands(:download) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:download]
+          cmd = (@options[:download_command]) ? "#{@options[:download_command]} #{@source}" :  
+            (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
+            "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}"
+          
+          [ cmd ]
         end
 
+
         def extract_commands #:nodoc:
+          return custom_stage_commands(:extract) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:extract]
           [ "bash -c 'cd #{@options[:builds]} && #{extract_command} #{@options[:archives]}/#{archive_name}'" ]
         end
 
         def configure_commands #:nodoc:
           return [] if custom_install?
+          return custom_stage_commands(:configure) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:configure]
 
           command = "bash -c 'cd #{build_dir} && ./configure --prefix=#{@options[:prefix]} "
 
@@ -111,11 +134,15 @@ module Sprinkle
 
         def build_commands #:nodoc:
           return [] if custom_install?
+          return custom_stage_commands(:build) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:build]
+
           [ "bash -c 'cd #{build_dir} && make > #{@package.name}-build.log 2>&1'" ]
         end
 
         def install_commands #:nodoc:
           return custom_install_commands if custom_install?
+          return custom_stage_commands(:install) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:install]
+
           [ "bash -c 'cd #{build_dir} && make install > #{@package.name}-install.log 2>&1'" ]
         end
 

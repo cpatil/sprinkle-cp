@@ -67,6 +67,8 @@ module Sprinkle
         POLICIES.each do |policy|
           policy.process(self)
         end
+        
+        @style.post_process
       end
     end
   end
