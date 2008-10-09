@@ -97,9 +97,45 @@ Sprinkle::Script.sprinkle File.read(powder), powder
 
 unless Sprinkle::OPTIONS[:deploy_dir].nil?
   File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.tcsh'), 'w') do |file|
-    file.write %Q!
+    file.write %Q%
       setenv DEPLOY_HOME #{Sprinkle::OPTIONS[:deploy_dir]}
-      source /home/cad/share/deploy_scripts/deploy.source
-    !    
+
+      # Oracle env
+      setenv NLS_LANG AMERICAN_AMERICA.UTF8
+      
+      ##############################################
+      # Architecture independent paths e.g. scripts
+      ###############################################
+      if (! $?DEPLOY_PATH) then
+         setenv DEPLOY_PATH ''
+      endif
+      if (! $?DEPLOY_LD_LIBRARY_PATH) then
+         setenv DEPLOY_LD_LIBRARY_PATH ''
+      endif
+
+     ##################################
+     # Set architecture specific paths
+     ##################################
+     set machtype = `uname -m`
+     if ($machtype == "x86_64") then
+      set machbits = "64"
+     else
+      set machbits = "32"
+     endif
+     
+     
+     ###################################
+     # THE FOLLOWING SHOULDN'T BE MODIFIED
+     ###################################
+     
+     # set the paths - Note that we intentionally append new paths to DEPLOY_* paths instead of prepending  - this allows us to override these defaults in the source_env.tcsh if needed
+        setenv DEPLOY_PATH "${DEPLOY_PATH}:$DEPLOY_HOME/tools_${machbits}/bin"
+        setenv DEPLOY_LD_LIBRARY_PATH "${DEPLOY_LD_LIBRARY_PATH}:$DEPLOY_HOME/tools_${machbits}/lib"
+     
+        setenv LD_LIBRARY_PATH "${DEPLOY_LD_LIBRARY_PATH}:$LD_LIBRARY_PATH"
+        setenv PATH "${DEPLOY_PATH}:$PATH"
+          
+     # end source
+    %    
   end
 end
