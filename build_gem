@@ -1,0 +1,4 @@
+/bin/rm -f sprinkle-0.1.6.gem
+gem build sprinkle.gemspec
+sudo gem install sprinkle-0.1.6.gem
+
