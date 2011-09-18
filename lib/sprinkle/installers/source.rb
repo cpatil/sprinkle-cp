@@ -57,10 +57,11 @@ module Sprinkle
     # block and calling the option as a method with the value as 
     # its parameter.
     class Source < Installer
-      attr_accessor :source #:nodoc:
+      attr_accessor :source, :no_software #:nodoc:
 
       def initialize(parent, source, options = {}, &block) #:nodoc:
         @source = source
+        @no_software = !!options[:no_software]
         super parent, options, &block
       end
 

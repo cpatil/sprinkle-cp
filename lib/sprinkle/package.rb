@@ -133,6 +133,10 @@ module Sprinkle
         @installer = Sprinkle::Installers::Gem.new(self, name, options, &block)
       end
 
+      def command(name, options = {}, &block)
+        @installer = Sprinkle::Installers::Command.new(self, name, options, &block)
+      end
+
       def source(source, options = {}, &block)
         @recommends << :build_essential # Ubuntu/Debian
         @installer = Sprinkle::Installers::Source.new(self, source, options, &block)
