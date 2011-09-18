@@ -44,6 +44,10 @@ module Sprinkle
         @options[:source] = location
       end
 
+      def build
+        
+      end
+
       protected
 
         # rubygems 0.9.5+ installs dependencies by default, and does platform selection

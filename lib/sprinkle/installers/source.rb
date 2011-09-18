@@ -105,6 +105,7 @@ module Sprinkle
           return custom_stage_commands(:download) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:download]
           cmd = (@options[:download_command]) ? "#{@options[:download_command]} #{@source}" :  
             (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
+            (extract_command == 'git') ? "#{extract_command} clone #{@source} #{@options[:archives]}" : 
             "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}"
           
           [ cmd ]
@@ -179,6 +180,8 @@ module Sprinkle
             'tar xf'
           when /zip$/
             'unzip'
+          when /git$/
+            'git'
           else
             raise "Unknown source archive format: #{archive_name}"
           end
@@ -195,7 +198,7 @@ module Sprinkle
         end
 
         def base_dir #:nodoc:
-          if @source.split('/').last =~ /(.*)\.(tar\.gz|tgz|tar\.bz2|tb2)/
+          if @source.split('/').last =~ /(.*)\.(tar\.gz|tgz|tar\.bz2|tb2|git)/
             return $1
           end
           raise "Unknown base path for source archive: #{@source}, please update code knowledge"

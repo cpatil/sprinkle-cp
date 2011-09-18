@@ -97,7 +97,7 @@ Sprinkle::Script.sprinkle File.read(powder), powder
 
 unless Sprinkle::OPTIONS[:deploy_dir].nil?
   File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.tcsh'), 'w') do |file|
-    file.write %Q%
+    file.write %q%
 
 # Remove existing deploy paths
 if ($?DEPLOY_HOME) then
@@ -114,7 +114,8 @@ if ($?DEPLOY_HOME) then
   unsetenv DEPLOY_LD_LIBRARY_PATH
 
 endif
-
+%
+file.write %Q%
 setenv DEPLOY_HOME #{Sprinkle::OPTIONS[:deploy_dir]}
 
 # Oracle env
@@ -157,20 +158,22 @@ setenv PATH "${DEPLOY_PATH}:$PATH"
   end
 
   File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.sh'), 'w') do |file|
-    file.write %Q%
+    file.write %q%
 
 if [ ! -z "$DEPLOY_HOME"  ]; then
-  if [! -z "$DEPLOY_PATH" ]; then
+  if [ ! -z "$DEPLOY_PATH" ]; then
     export PATH=`echo $PATH | sed -e "s#${DEPLOY_PATH}[:]*##"`
   fi
-  if [! -z "$DEPLOY_LD_LIBRARY_PATH" ]; then
+  if [ ! -z "$DEPLOY_LD_LIBRARY_PATH" ]; then
     export LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | sed -e "s#${DEPLOY_LD_LIBRARY_PATH}[:]*##"`
   fi
   unset DEPLOY_HOME
   unset DEPLOY_PATH
   unset DEPLOY_LD_LIBRARY_PATH
 fi
+%
 
+      file.write %Q%
 export DEPLOY_HOME=#{Sprinkle::OPTIONS[:deploy_dir]}
 
 # Oracle env

@@ -2,7 +2,7 @@ require 'rubygems'
 require 'active_support'
 
 # Use active supports auto load mechanism
-Dependencies.load_paths << File.dirname(__FILE__)
+ActiveSupport::Dependencies.load_paths << File.dirname(__FILE__)
 
 # Configure active support to log auto-loading of dependencies
 #Dependencies::RAILS_DEFAULT_LOGGER = Logger.new($stdout)
