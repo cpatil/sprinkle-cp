@@ -1,4 +1,4 @@
-cmodule Sprinkle
+module Sprinkle
   module Installers
     # = Custom installer
     #
