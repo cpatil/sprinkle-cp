@@ -3,8 +3,8 @@ module Sprinkle
     # = Source Package Installer
     #
     # The source package installer installs software from source.
-    # It handles downloading, extracting, configuring, building, 
-    # and installing software. 
+    # It handles downloading, extracting, configuring, building,
+    # and installing software.
     #
     # == Configuration Options
     #
@@ -22,7 +22,7 @@ module Sprinkle
     # * <b>configure</b> - Configure is the stage which the ./configure script is run.
     # * <b>build</b> - Build is the stage in which `make` is called.
     # * <b>install</b> - Install is the stage which `make install` is called.
-    # 
+    #
     # == Example Usage
     #
     # First, a simple package, no configuration:
@@ -46,16 +46,26 @@ module Sprinkle
     #   package :magic_beans do
     #     source 'http://magicbeansland.com/latest-1.1.1.tar.gz' do
     #       prefix    '/usr/local'
-    #       
+    #
     #       pre :prepare { 'echo "Here we go folks."' }
     #       post :extract { 'echo "I believe..."' }
     #       pre :build { 'echo "Cross your fingers!"' }
     #     end
     #   end
     #
+    # Fourth, specifying a custom archive name because the downloaded file name
+    # differs from the source URL:
+    #
+    #   package :gitosis do
+    #     source 'http://github.com/crafterm/sprinkle/tarball/master' do
+    #       custom_archive 'crafterm-sprinkle-518e33c835986c03ec7ae8ea88c657443b006f28.tar.gz'
+    #     end
+    #   end
+    #
     # As you can see, setting options is as simple as creating a
-    # block and calling the option as a method with the value as 
+    # block and calling the option as a method with the value as
     # its parameter.
+
     class Source < Installer
       attr_accessor :source, :no_software #:nodoc:
 
@@ -96,18 +106,17 @@ module Sprinkle
           raise 'No build area defined' unless @options[:builds]
           raise 'No source download area defined' unless @options[:archives]
 
-          [ "mkdir -p #{@options[:prefix]}",
-            "mkdir -p #{@options[:builds]}",
-            "mkdir -p #{@options[:archives]}" ]
+          [ "mkdir -p #{@options[:prefix].first}",
+            "mkdir -p #{@options[:builds].first}",
+            "mkdir -p #{@options[:archives].first}" ]
         end
 
         def download_commands #:nodoc:          
-          #[ "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}" ]
           return custom_stage_commands(:download) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:download]
           cmd = (@options[:download_command]) ? "#{@options[:download_command]} #{@source}" :  
             (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
             (extract_command == 'git') ? "#{extract_command} clone #{@source} #{@options[:archives]}" : 
-            "wget -cq --directory-prefix='#{@options[:archives]}' #{@source}"
+            "wget -cq -O '#{@options[:archives].first}/#{archive_name}' --directory-prefix='#{@options[:archives]}' #{@source}"
           
           [ cmd ]
         end
@@ -115,21 +124,22 @@ module Sprinkle
 
         def extract_commands #:nodoc:
           return custom_stage_commands(:extract) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:extract]
-          [ "bash -c 'cd #{@options[:builds]} && #{extract_command} #{@options[:archives]}/#{archive_name}'" ]
+          [ "bash -c 'cd #{@options[:builds].first} && #{extract_command} #{@options[:archives].first}/#{archive_name}'" ]
         end
 
         def configure_commands #:nodoc:
           return [] if custom_install?
           return custom_stage_commands(:configure) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:configure]
 
-          command = "bash -c 'cd #{build_dir} && ./configure --prefix=#{@options[:prefix]} "
+          command = "bash -c 'cd #{build_dir} && ./configure --prefix=#{@options[:prefix].first} "
 
           extras = {
             :enable  => '--enable', :disable => '--disable',
-            :with    => '--with',   :without => '--without'
+            :with    => '--with',   :without => '--without',
+            :option  => '-',
           }
 
-          extras.inject(command) { |m, (k, v)| m << create_options(k, v) if options[k]; m }
+          extras.inject(command) { |m, (k, v)|  m << create_options(k, v) if options[k]; m }
 
           [ command << " > #{@package.name}-configure.log 2>&1'" ]
         end
@@ -168,11 +178,11 @@ module Sprinkle
       private
 
         def create_options(key, prefix) #:nodoc:
-          @options[key].inject(' ') { |m, option| m << "#{prefix}-#{option} "; m }
+          @options[key].first.inject('') { |m, option| m << "#{prefix}-#{option} "; m }
         end
 
         def extract_command #:nodoc:
-          case @source
+          case archive_name
           when /(tar.gz)|(tgz)$/
             'tar xzf'
           when /(tar.bz2)|(tb2)$/
@@ -180,7 +190,7 @@ module Sprinkle
           when /tar$/
             'tar xf'
           when /zip$/
-            'unzip'
+            'unzip -o'
           when /git$/
             'git'
           else
@@ -190,21 +200,25 @@ module Sprinkle
 
         def archive_name #:nodoc:
           name = @source.split('/').last
+          if options[:custom_archive]
+            name = options[:custom_archive]
+            name = name.join if name.is_a? Array
+          end
           raise "Unable to determine archive name for source: #{source}, please update code knowledge" unless name
           name
         end
 
         def build_dir #:nodoc:
-          "#{@options[:builds]}/#{options[:custom_dir] || base_dir}"
+          "#{@options[:builds].first}/#{options[:custom_dir] || base_dir}"
         end
 
         def base_dir #:nodoc:
-          if @source.split('/').last =~ /(.*)\.(tar\.gz|tgz|tar\.bz2|tb2|git)/
+          if archive_name.split('/').last =~ /(.*)\.(tar\.gz|tgz|tar\.bz2|tar|tb2|zip)/
             return $1
           end
           raise "Unknown base path for source archive: #{@source}, please update code knowledge"
         end
-        
+
     end
   end
 end

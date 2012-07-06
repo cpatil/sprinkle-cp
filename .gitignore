@@ -1,1 +1,6 @@
+*.gem
 pkg
+.DS_Store
+.idea
+.*.swp
+coverage/*

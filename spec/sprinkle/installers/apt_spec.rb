@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
+require File.expand_path("../../spec_helper", File.dirname(__FILE__))
 
 describe Sprinkle::Installers::Apt do
 
@@ -40,18 +40,20 @@ describe Sprinkle::Installers::Apt do
     end
 
     it 'should invoke the apt installer for all specified packages' do
-      @install_commands.should =~ /apt-get -qyu install ruby/
+      @install_commands.should =~ /apt-get --force-yes -qyu install ruby/
     end
 
     it 'should specify a non interactive mode to the apt installer' do
-      @install_commands.should =~ /DEBIAN_FRONTEND=noninteractive/
+      @install_commands.should =~ /env DEBCONF_TERSE='yes' DEBIAN_PRIORITY='critical' DEBIAN_FRONTEND=noninteractive/
     end
 
     it 'should automatically insert pre/post commands for the specified package' do
-      @installer.send(:install_sequence).should == [ 'op1', %(DEBCONF_TERSE='yes' DEBIAN_PRIORITY='critical' DEBIAN_FRONTEND=noninteractive apt-get -qyu install ruby), 'op2' ]
+      @installer.send(:install_sequence).should == [ 'op1', %(env DEBCONF_TERSE='yes' DEBIAN_PRIORITY='critical' DEBIAN_FRONTEND=noninteractive apt-get --force-yes -qyu install ruby), 'op2' ]
     end
 
-    it 'should install a specific version if defined'
+    it 'should install a specific version if defined' do
+      pending
+    end
 
   end
   
@@ -63,8 +65,9 @@ describe Sprinkle::Installers::Apt do
     end
 
     it 'should invoke the apt installer with build-dep command for all specified packages' do
-      @install_commands.should =~ /apt-get -qyu build-dep ruby/
+      @install_commands.should =~ /apt-get --force-yes -qyu build-dep ruby/
     end
     
   end
+
 end

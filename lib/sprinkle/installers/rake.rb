@@ -13,16 +13,23 @@ module Sprinkle
     #     rake 'spec'
     #   end
     # 
+    # Specify a Rakefile with the :rakefile option.
+    #
+    #   package :spec, :rakefile => "/var/setup/Rakefile" do
+    #     rake 'spec'
+    #   end
+     
     class Rake < Installer
-      def initialize(parent, commands = [], &block) #:nodoc:
-        super parent, &block
+      def initialize(parent, commands, options = {}, &block) #:nodoc:
+        super parent, options, &block
         @commands = commands
       end
 
       protected
 
         def install_commands #:nodoc:
-          "rake #{@commands.join(' ')}"
+          file = @options[:rakefile] ? "-f #{@options[:rakefile]} " : ""
+          "rake #{file}#{@commands}"
         end
 
     end
