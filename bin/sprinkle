@@ -17,6 +17,10 @@ require 'pathname'
 OPTIONS = {}
 MANDATORY_OPTIONS = %w( path )
 
+ARGV.each do |arg|
+  ENV[$1] = $2 if arg =~ /^(\w+)=(.*)$/
+end
+
 parser = OptionParser.new do |opts|
   opts.banner = <<BANNER
 Sprinkle
@@ -40,15 +44,15 @@ Options are:
 BANNER
   opts.separator ""
   opts.on("-s", "--script=PATH", String,
-          "Path to a sprinkle script to run") { |OPTIONS[:path]| }
+          "Path to a sprinkle script to run") { |v| OPTIONS[:path] = v }
   opts.on("-t", "--test",
-          "Process but don't perform any actions") { |OPTIONS[:testing]| }
+          "Process but don't perform any actions") { |v| OPTIONS[:testing] = v }
   opts.on("-v", "--verbose",
-          "Verbose output") { |OPTIONS[:verbose]| }
+          "Verbose output") { |v| OPTIONS[:verbose] = v }
   opts.on("-c", "--cloud",
-          "Show powder cloud, ie. package hierarchy and installation order") { |OPTIONS[:cloud]| }
+          "Show powder cloud, ie. package hierarchy and installation order") { |v| OPTIONS[:cloud] = v }
   opts.on("-f", "--force",
-          "Force installation of all packages even if it is detected that it has been previously installed") { |OPTIONS[:force]| }
+          "Force installation of all packages even if it is detected that it has been previously installed") { |v| OPTIONS[:force] = v }
   opts.on("-d", "--deploy_dir=PATH", String,
           "Specifies the deploy directory to build") { |OPTIONS[:deploy_dir]| }
   opts.on("-h", "--help",
@@ -74,15 +78,18 @@ end
 
 def set_deploy_dir(options)
   Sprinkle::OPTIONS[:deploy_dir] = OPTIONS[:deploy_dir] ? 
-               Pathname.new(OPTIONS[:deploy_dir]).absolute? ? OPTIONS[:deploy_dir] : File.join(Dir.pwd,OPTIONS[:deploy_dir])  :
-               nil  
+  Pathname.new(OPTIONS[:deploy_dir]).absolute? ? OPTIONS[:deploy_dir] : File.join(Dir.pwd,OPTIONS[:deploy_dir])  : nil  
+end
+
+def verbosity(options)
+  Sprinkle::OPTIONS[:verbose] = OPTIONS[:verbose] || false
 end
 
 def log_level(options)
   Object.logger.level = ActiveSupport::BufferedLogger::Severity::DEBUG if options[:verbose]
 end
 
-require 'sprinkle'
+require File.dirname(__FILE__) + '/../lib/sprinkle'
 
 powder = OPTIONS[:path]
 raise "Sprinkle script is not readable: #{powder}" unless File.readable?(powder)
@@ -92,8 +99,12 @@ operation_mode(OPTIONS)
 powder_cloud(OPTIONS)
 log_level(OPTIONS)
 set_deploy_dir(OPTIONS)
+verbosity(OPTIONS)
+
 
 Sprinkle::Script.sprinkle File.read(powder), powder
+
+puts "Generating execution environment files"
 
 unless Sprinkle::OPTIONS[:deploy_dir].nil?
   File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.tcsh'), 'w') do |file|

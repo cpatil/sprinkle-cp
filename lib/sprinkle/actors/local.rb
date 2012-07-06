@@ -27,13 +27,24 @@ module Sprinkle
         @options[:env] = hsh
       end
 
+      def transfer(name, source, destination, roles, recursive = true, suppress_and_return_failures = false)
+        if recursive
+          flags = "-R "
+        end
+        
+        system "cp #{flags}#{source} #{destination}"
+      end
+
       def process(name, commands, roles, suppress_and_return_failures = false) #:nodoc:
+        # Set execution env for the command
         @options[:env].each {|k,v|  ENV[k.to_s] = v.empty? ? nil : v} unless @options[:env].nil?
         begin
-          commands.each { |command|  raise CmdExecutionException.new(command, $!) unless system command  }
+          commands.each do |command|  
+            raise CmdExecutionException.new(command, $!) unless system command
+          end
         rescue CmdExecutionException => e          
           return false if suppress_and_return_failures
-
+          
           puts "Error running command '#{e.command}' : #{e.err}"
           puts e.backtrace.join("\n")
           exit 1
@@ -44,10 +55,9 @@ module Sprinkle
       def post_process
         unless @options[:env].nil?
           # write out the env
-
-          
         end
       end
+
 
     end
   end

@@ -1,9 +1,14 @@
-= SPRINKLE
+# SPRINKLE
 
-http://redartisan.com/2008/5/27/sprinkle-intro
-http://github.com/crafterm/sprinkle
+* <http://redartisan.com/2008/5/27/sprinkle-intro>
+* <http://github.com/crafterm/sprinkle>
+* <http://github.com/benschwarz/passenger-stack>
+* <http://github.com/trevorturk/sprinkle-packages>
+* <http://www.vimeo.com/2888665>
+* <http://redartisan.lighthouseapp.com/projects/25275-sprinkle/tickets>
+* <http://maxim.github.com/sprinkle-cheatsheet>
 
-== DESCRIPTION:
+## DESCRIPTION:
 
 Sprinkle is a software provisioning tool you can use to build remote servers with, after the base operating
 system has been installed. For example, to install a Rails or Merb stack on a brand new slice directly after
@@ -20,7 +25,7 @@ An example package description follows:
       version '1.8.6'
       source "ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-#{version}-p111.tar.gz"
       requires :ruby_dependencies
-      
+
       verify do
         has_file '/usr/bin/ruby'
       end
@@ -62,17 +67,17 @@ appserver, database and webserver can be virtual packages, where the user will b
 multiple choices for the virtual package exist.
 
 Sprinkle is architected to be extendable in many ways, one of those areas is in its deployment of commands to
-remote hosts. Currently Sprinkle supports the use of Capistrano, Vlad, or a direct net/ssh connection to 
+remote hosts. Currently Sprinkle supports the use of Capistrano, Vlad, or a direct net/ssh connection to
 issue commands on remote hosts via ssh, but could also be extended to use any other command transport mechanism
 desired. Sprinkle can also be configured to simply issue installation commands to provision the local system.
 
-An full example Sprinkle deployment script for deploying Rails (via gems), MySQL (via APT), Apache (via source) 
+An full example Sprinkle deployment script for deploying Rails (via gems), MySQL (via APT), Apache (via source)
 and Git (via source with dependencies from APT):
 
     # Sprinkle Rails deployment script
     #
     # This is an example Sprinkle script, configured to install Rails from gems, Apache, Ruby and Git from source,
-    # and mysql and Git dependencies from apt on an Ubuntu system. Installation is configured to run via 
+    # and mysql and Git dependencies from apt on an Ubuntu system. Installation is configured to run via
     # Capistrano (and an accompanying deploy.rb recipe script). Source based packages are downloaded and built into
     # /usr/local on the remote system.
     #
@@ -155,7 +160,7 @@ and Git (via source with dependencies from APT):
       version '1.0.5'
       requires :mongrel
     end
-    
+
     package :git, :provides => :scm do
       description 'Git Distributed Version Control'
       version '1.5.6.3'
@@ -205,18 +210,18 @@ and Git (via source with dependencies from APT):
 
     end
 
-Please see the examples directory for more complete examples of Sprinkle deployment scripts.
+Please see the examples directory for more complete examples of Sprinkle deployment scripts, and also the Passenger Stack github page and video by Ben Schwarz (<http://github.com/benschwarz/passenger-stack> and <http://www.vimeo.com/2888665> respectively).
 
 Sprinkle is a work in progress and I'm excited to hear if anyone finds it useful - please feel free to
 comment, ask any questions, or send in any ideas, patches, bugs. All most welcome.
 
 Marcus Crafter <crafterm@redartisan.com>
 
-== LICENSE:
+## LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2008 Marcus Crafter <crafterm@redartisan.com>
+Copyright (c) 2008-2009 Marcus Crafter <crafterm@redartisan.com>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

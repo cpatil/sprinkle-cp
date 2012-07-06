@@ -13,7 +13,7 @@ module Sprinkle
     #     end
     #   end
     #
-    # script is given a list of files which capistrano will include and load.
+    # script is given a list of files which vlad will include and load.
     # These recipes are mainly to set variables such as :user, :password, and to 
     # set the app domain which will be sprinkled.
     class Vlad
@@ -36,18 +36,36 @@ module Sprinkle
       #   end
       def script(name)
         @loaded_recipes ||= []
-        self.load name
-        @loaded_recipes << script
+        require name
+        @loaded_recipes << name
       end
 
       def process(name, commands, roles, suppress_and_return_failures = false) #:nodoc:
-        commands = commands.join ' && ' if commands.is_a? Array
+        commands = Array(commands)
+        if use_sudo
+          commands = commands.map{|x| "sudo #{x}"}
+        end
+        commands = commands.join(' && ')
+        puts "executing #{commands}"
         t = remote_task(task_sym(name), :roles => roles) { run commands }
         
         begin
           t.invoke
           return true
-        rescue ::Vlad::CommandFailedError => e
+        rescue ::Rake::CommandFailedError => e
+          return false if suppress_and_return_failures
+          
+          # Reraise error if we're not suppressing it
+          raise
+        end
+      end
+
+			# Sorry, all transfers are recursive
+      def transfer(name, source, destination, roles, recursive = true, suppress_and_return_failures = false) #:nodoc:
+        begin
+					rsync source, destination
+          return true
+        rescue ::Rake::CommandFailedError => e
           return false if suppress_and_return_failures
           
           # Reraise error if we're not suppressing it
