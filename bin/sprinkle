@@ -106,7 +106,7 @@ Sprinkle::Script.sprinkle File.read(powder), powder
 
 puts "Generating execution environment files"
 
-unless Sprinkle::OPTIONS[:deploy_dir].nil?
+unless PREFIX_DIR.nil?
   File.open(File.join(PREFIX_DIR, 'source_env.tcsh'), 'w') do |file|
     file.write %q%
 
