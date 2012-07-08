@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = "0.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Marcus Crafter"]
+  s.authors = ["Marcus Crafter", "Chetan Patil"]
   s.date = %q{2011-10-04}
   s.default_executable = %q{sprinkle}
   s.description = %q{Fork of Ruby DSL based software provisioning tool with Deployment Dir support}
@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
   s.executables = ["sprinkle"]
   s.extra_rdoc_files = [
     "README.markdown",
-    "TODO"
   ]
   s.files = [
     "CREDITS",

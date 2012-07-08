@@ -113,6 +113,7 @@ module Sprinkle
 
         def download_commands #:nodoc:          
           return custom_stage_commands(:download) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:download]
+          return [] if File.exists?(File.join(@options[:archives], @source))
           cmd = (@options[:download_command]) ? "#{@options[:download_command]} #{@source}" :  
             (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
             (extract_command == 'git') ? "#{extract_command} clone #{@source} #{@options[:archives]}" : 
