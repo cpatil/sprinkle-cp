@@ -54,7 +54,7 @@ BANNER
   opts.on("-f", "--force",
           "Force installation of all packages even if it is detected that it has been previously installed") { |v| OPTIONS[:force] = v }
   opts.on("-d", "--deploy_dir=PATH", String,
-          "Specifies the deploy directory to build") { |OPTIONS[:deploy_dir]| }
+          "Specifies the deploy directory to build") { |dir| OPTIONS[:deploy_dir] = dir }
   opts.on("-h", "--help",
           "Show this help message.") { puts opts; exit }
   opts.parse!(ARGV)
