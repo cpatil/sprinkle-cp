@@ -99,6 +99,7 @@ Gem::Specification.new do |s|
     "lib/sprinkle/verifiers/rpm.rb",
     "lib/sprinkle/verifiers/ruby.rb",
     "lib/sprinkle/verifiers/symlink.rb",
+    "lib/sprinkle/verifiers/command_execution.rb",
     "lib/sprinkle/verifiers/users_groups.rb",
     "lib/sprinkle/verify.rb",
     "script/console",
