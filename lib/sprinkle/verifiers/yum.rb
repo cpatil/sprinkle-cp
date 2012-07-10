@@ -13,6 +13,7 @@ module Sprinkle
 
       # Checks to make sure the yum <tt>package</tt> exists on the remote server.
       def has_yum(package)
+          puts package
          @commands << "yum list | grep #{package} "
       end
 

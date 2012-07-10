@@ -90,6 +90,7 @@ Gem::Specification.new do |s|
     "lib/sprinkle/policy.rb",
     "lib/sprinkle/script.rb",
     "lib/sprinkle/verifiers/apt.rb",
+    "lib/sprinkle/verifiers/yum.rb",
     "lib/sprinkle/verifiers/brew.rb",
     "lib/sprinkle/verifiers/directory.rb",
     "lib/sprinkle/verifiers/executable.rb",

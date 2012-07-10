@@ -106,8 +106,8 @@ Sprinkle::Script.sprinkle File.read(powder), powder
 
 puts "Generating execution environment files"
 
-unless Sprinkle::OPTIONS[:deploy_dir].nil?
-  File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.tcsh'), 'w') do |file|
+unless PREFIX_DIR.nil?
+  File.open(File.join(PREFIX_DIR, 'source_env.tcsh'), 'w') do |file|
     file.write %q%
 
 # Remove existing deploy paths
@@ -127,7 +127,9 @@ if ($?DEPLOY_HOME) then
 endif
 %
 file.write %Q%
-setenv DEPLOY_HOME #{Sprinkle::OPTIONS[:deploy_dir]}
+setenv DEPLOY_HOME #{PREFIX_DIR}
+setenv DEPLOY_LIB #{LIB_DIR}
+setenv DEPLOY_BIN #{BIN_DIR}
 
 # Oracle env
 setenv NLS_LANG AMERICAN_AMERICA.UTF8
@@ -158,8 +160,8 @@ endif
 ###################################
 
 # set the paths - Note that we intentionally append new paths to DEPLOY_* paths instead of prepending  - this allows us to override these defaults in the source_env.tcsh if needed
-setenv DEPLOY_PATH "${DEPLOY_PATH}:$DEPLOY_HOME/tools_${machbits}/bin"
-setenv DEPLOY_LD_LIBRARY_PATH "${DEPLOY_LD_LIBRARY_PATH}:$DEPLOY_HOME/tools_${machbits}/lib"
+setenv DEPLOY_PATH "${DEPLOY_PATH}:$DEPLOY_BIN"
+setenv DEPLOY_LD_LIBRARY_PATH "${DEPLOY_LD_LIBRARY_PATH}:$DEPLOY_LIB"
 
 setenv LD_LIBRARY_PATH "${DEPLOY_LD_LIBRARY_PATH}:$LD_LIBRARY_PATH"
 setenv PATH "${DEPLOY_PATH}:$PATH"
@@ -168,7 +170,7 @@ setenv PATH "${DEPLOY_PATH}:$PATH"
 %    
   end
 
-  File.open(File.join(Sprinkle::OPTIONS[:deploy_dir], 'source_env.sh'), 'w') do |file|
+  File.open(File.join(PREFIX_DIR, 'source_env.sh'), 'w') do |file|
     file.write %q%
 
 if [ ! -z "$DEPLOY_HOME"  ]; then
@@ -185,7 +187,9 @@ fi
 %
 
       file.write %Q%
-export DEPLOY_HOME=#{Sprinkle::OPTIONS[:deploy_dir]}
+export DEPLOY_HOME=#{PREFIX_DIR}
+export DEPLOY_LIB=#{LIB_DIR}
+export DEPLOY_BIN=#{BIN_DIR}
 
 # Oracle env
 export NLS_LANG="AMERICAN_AMERICA.UTF8"
@@ -213,8 +217,8 @@ fi
 ###################################
      
 # set the paths - Note that we intentionally append new paths to DEPLOY_* paths instead of prepending  - this allows us to override these defaults in the source_env.tcsh if needed
-export DEPLOY_PATH="${DEPLOY_PATH}:$DEPLOY_HOME/tools_${machbits}/bin"
-export DEPLOY_LD_LIBRARY_PATH="${DEPLOY_LD_LIBRARY_PATH}:$DEPLOY_HOME/tools_${machbits}/lib"
+export DEPLOY_PATH="${DEPLOY_PATH}:$DEPLOY_BIN"
+export DEPLOY_LD_LIBRARY_PATH="${DEPLOY_LD_LIBRARY_PATH}:$DEPLOY_LIB"
      
 export LD_LIBRARY_PATH="${DEPLOY_LD_LIBRARY_PATH}:$LD_LIBRARY_PATH"
 export PATH="${DEPLOY_PATH}:$PATH"
@@ -225,3 +229,5 @@ export PATH="${DEPLOY_PATH}:$PATH"
 
 
 end
+
+puts "DONE"
