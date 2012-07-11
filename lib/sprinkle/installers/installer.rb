@@ -46,7 +46,7 @@ module Sprinkle
       def initialize(package, options = {}, &block) #:nodoc:
         @package = package
         @options = options
-        @pre = {}; @post = {}
+        @pre = {}; @post = {}; @skip_stage = {}
         self.instance_eval(&block) if block
       end
 
@@ -75,6 +75,10 @@ module Sprinkle
           @delivery.process(@package.name, install_sequence, roles)
         end
       end
+
+      def skip_stage(stage)                                                                                                                                                                                                                                 
+        @skip_stage[stage] = 1                                                                                                                                                                                                                              
+      end 
 
       protected
         # More complicated installers that have different stages, and require pre/post commands

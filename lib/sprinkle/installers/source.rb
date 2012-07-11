@@ -91,7 +91,15 @@ module Sprinkle
         end
 
         def install_sequence #:nodoc:
-          prepare + download + extract + configure + build + install
+          # prepare + download + extract + configure + build + install
+          seq = []
+          seq += prepare unless  @skip_stage[:prepare]
+          seq += download unless  @skip_stage[:download]
+          seq += extract unless  @skip_stage[:extract]
+          seq += configure unless  @skip_stage[:configure]
+          seq += build unless  @skip_stage[:build]
+          seq += install unless  @skip_stage[:install]
+          seq
         end
 
         %w( prepare download extract configure build install ).each do |stage|
@@ -115,8 +123,9 @@ module Sprinkle
           return custom_stage_commands(:download) if @options[:custom_stage_commands] && @options[:custom_stage_commands][:download]
           return [] if File.exists?(File.join(@options[:archives], @source))
           cmd = (@options[:download_command]) ? "#{@options[:download_command]} #{@source}" :  
-            (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
+            # (@source =~ %r!^/!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
             (extract_command == 'git') ? "#{extract_command} clone #{@source} #{@options[:archives]}" : 
+            (@source !~ %r!\A(?:http|ftp)!) ? "/bin/cp #{@source} #{@options[:archives]}"  : 
             "wget -cq -O '#{@options[:archives].first}/#{archive_name}' --directory-prefix='#{@options[:archives]}' #{@source}"
           
           [ cmd ]
