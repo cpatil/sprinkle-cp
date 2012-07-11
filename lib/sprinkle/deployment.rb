@@ -68,7 +68,7 @@ module Sprinkle
           policy.process(self)
         end
         
-        @style.post_process
+        @style.post_process if @style.respond_to?(:post_process)
       end
     end
   end

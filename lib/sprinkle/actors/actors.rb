@@ -14,8 +14,6 @@ module Sprinkle
   # and Sprinkle::Actors::Vlad will be enough.
   module Actors
 
-    def post_process
-    end
 
   end
 end
