@@ -106,27 +106,29 @@ Sprinkle::Script.sprinkle File.read(powder), powder
 
 puts "Generating execution environment files"
 
-unless PREFIX_DIR.nil?
-  File.open(File.join(PREFIX_DIR, 'source_env.tcsh'), 'w') do |file|
-    file.write %q%
+exit 0 unless Sprinkle::OPTIONS[:deploy_dir] 
+
+PREFIX_DIR = Sprinkle::OPTIONS[:deploy_dir] 
+
+File.open(File.join(PREFIX_DIR, 'source_env.tcsh'), 'w') do |file|
+  file.write %q%
 
 # Remove existing deploy paths
 if ($?DEPLOY_HOME) then
-    if ($?DEPLOY_PATH) then
-      setenv PATH "`echo $PATH | sed -e 's#${DEPLOY_PATH}[:]*##'`"
-    endif
-
-    if ($?DEPLOY_LD_LIBRARY_PATH) then
-      setenv LD_LIBRARY_PATH "`echo $LD_LIBRARY_PATH | sed -e 's#${DEPLOY_LD_LIBRARY_PATH}[:]*##'`"
-    endif
-
-  unsetenv DEPLOY_HOME
-  unsetenv DEPLOY_PATH
-  unsetenv DEPLOY_LD_LIBRARY_PATH
-
+  if ($?DEPLOY_PATH) then
+    setenv PATH "`echo $PATH | sed -e 's#${DEPLOY_PATH}[:]*##'`"
+  endif
+    
+ if ($?DEPLOY_LD_LIBRARY_PATH) then
+   setenv LD_LIBRARY_PATH "`echo $LD_LIBRARY_PATH | sed -e 's#${DEPLOY_LD_LIBRARY_PATH}[:]*##'`"
+ endif
+      
+ unsetenv DEPLOY_HOME
+ unsetenv DEPLOY_PATH
+ unsetenv DEPLOY_LD_LIBRARY_PATH
+      
 endif
-%
-file.write %Q%
+
 setenv DEPLOY_HOME #{PREFIX_DIR}
 setenv DEPLOY_LIB #{LIB_DIR}
 setenv DEPLOY_BIN #{BIN_DIR}
@@ -168,7 +170,7 @@ setenv PATH "${DEPLOY_PATH}:$PATH"
      
 # end source
 %    
-  end
+  end  # end tcsh files
 
   File.open(File.join(PREFIX_DIR, 'source_env.sh'), 'w') do |file|
     file.write %q%
@@ -184,9 +186,7 @@ if [ ! -z "$DEPLOY_HOME"  ]; then
   unset DEPLOY_PATH
   unset DEPLOY_LD_LIBRARY_PATH
 fi
-%
 
-      file.write %Q%
 export DEPLOY_HOME=#{PREFIX_DIR}
 export DEPLOY_LIB=#{LIB_DIR}
 export DEPLOY_BIN=#{BIN_DIR}
@@ -226,8 +226,5 @@ export PATH="${DEPLOY_PATH}:$PATH"
 # end source
 %    
   end
-
-
-end
 
 puts "DONE"
