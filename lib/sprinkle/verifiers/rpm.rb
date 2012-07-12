@@ -13,7 +13,7 @@ module Sprinkle
       
       # Checks to make sure <tt>package</tt> exists in the rpm installed database on the remote server.
       def has_rpm(package)
-        @commands << "rpm -qa | grep -e '^#{package}'"
+        @commands << %Q!rpm -qa | grep -e '^#{File.basename(package, ".rpm")}'!
       end
       
     end
