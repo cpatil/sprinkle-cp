@@ -18,8 +18,9 @@ module Sprinkle
         @commands << "test -f #{path}"
       end
       
-      def file_contains(path, text)
-        @commands << "grep '#{text}' #{path}"
+      def file_contains(path, text, opts={})
+        use_sudo = opts[:use_sudo] || false
+        @commands << "#{use_sudo ? 'sudo' : ''} grep '#{text}' #{path}"
       end
       def user_present(username) 
         has_user username
