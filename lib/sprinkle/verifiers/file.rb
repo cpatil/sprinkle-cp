@@ -14,8 +14,9 @@ module Sprinkle
       Sprinkle::Verify.register(Sprinkle::Verifiers::File)
       
       # Checks to make sure <tt>path</tt> is a file on the remote server.
-      def has_file(path)
-        @commands << "test -f #{path}"
+      def has_file(path, opts={})
+        use_sudo = opts[:use_sudo] || false
+        @commands << "#{use_sudo ? 'sudo' : ''} test -f #{path}"
       end
       
       def file_contains(path, text, opts={})
@@ -25,11 +26,12 @@ module Sprinkle
       def user_present(username) 
         has_user username
       end
-      def matches_local(localfile, remotefile, mode=nil)
+      def matches_local(localfile, remotefile, mode=nil, opts={})
+        use_sudo = opts[:use_sudo] || false
         raise "Couldn't find local file #{localfile}" unless ::File.exists?(localfile)
         require 'digest/md5'
         local = Digest::MD5.hexdigest(::File.read(localfile))
-        @commands << %{[ "X$(md5sum #{remotefile}|cut -d\\  -f 1)" = "X#{local}" ]}
+        @commands << %{[ "X$(#{use_sudo ? 'sudo' : ''} md5sum #{remotefile}|cut -d\\  -f 1)" = "X#{local}" ]}
       end
     end
   end
