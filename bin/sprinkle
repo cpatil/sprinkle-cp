@@ -78,7 +78,7 @@ end
 
 def set_deploy_dir(options)
   Sprinkle::OPTIONS[:deploy_dir] = OPTIONS[:deploy_dir] ? 
-  Pathname.new(OPTIONS[:deploy_dir]).absolute? ? OPTIONS[:deploy_dir] : File.join(Dir.pwd,OPTIONS[:deploy_dir])  : nil  
+      Pathname.new(OPTIONS[:deploy_dir]).absolute? ? OPTIONS[:deploy_dir] : File.join(Dir.pwd,OPTIONS[:deploy_dir])  : nil  
 end
 
 def verbosity(options)
@@ -104,9 +104,9 @@ verbosity(OPTIONS)
 
 Sprinkle::Script.sprinkle File.read(powder), powder
 
-puts "Generating execution environment files"
-
 exit 0 unless Sprinkle::OPTIONS[:deploy_dir] 
+
+puts "Generating execution environment files"
 
 PREFIX_DIR = Sprinkle::OPTIONS[:deploy_dir] 
 

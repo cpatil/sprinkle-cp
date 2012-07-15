@@ -90,6 +90,7 @@ module Sprinkle
 
         normalize(all) do |package|
           package.process(deployment, @roles)
+          puts package.instructions.join("\n")
         end
       end
 

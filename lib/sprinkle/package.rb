@@ -107,7 +107,7 @@ module Sprinkle
 
     class Package #:nodoc:
       include ArbitraryOptions
-      attr_accessor :name, :provides, :installers, :dependencies, :recommends, :verifications
+      attr_accessor :name, :provides, :installers, :dependencies, :recommends, :verifications, :instructions
 
       def initialize(name, metadata = {}, &block)
         raise 'No package name supplied' unless name
@@ -119,6 +119,7 @@ module Sprinkle
         @optional = []
         @verifications = []
         @installers = []
+        @instructions = []
         self.instance_eval &block
       end
       def add_user(username, options={},  &block)
@@ -206,7 +207,7 @@ module Sprinkle
       def noop(&block)
         @installers << Sprinkle::Installers::Runner.new(self, "echo noop", &block)
       end
-      
+
       def push_text(text, path, options = {}, &block)
         @installers << Sprinkle::Installers::PushText.new(self, text, path, options, &block)
       end
@@ -219,10 +220,10 @@ module Sprinkle
         @installers << Sprinkle::Installers::Transfer.new(self, source, destination, options, &block)
       end
 
-			def runner(cmd, &block)
-				@installers << Sprinkle::Installers::Runner.new(self, cmd, &block)
-			end
-
+      def runner(cmd, &block)
+        @installers << Sprinkle::Installers::Runner.new(self, cmd, &block)
+      end
+      
       def verify(description = '', &block)
         @verifications << Sprinkle::Verify.new(self, description, &block)
       end  
@@ -317,6 +318,10 @@ module Sprinkle
       end
 
       def to_s; @name; end
+
+      def instructions(*messages)
+        @instructions += messages
+      end
 
       private
 
