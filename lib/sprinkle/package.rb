@@ -107,7 +107,7 @@ module Sprinkle
 
     class Package #:nodoc:
       include ArbitraryOptions
-      attr_accessor :name, :provides, :installers, :dependencies, :recommends, :verifications, :instructions
+      attr_accessor :name, :provides, :installers, :dependencies, :recommends, :verifications, :instructions, :delayed_procs
 
       def initialize(name, metadata = {}, &block)
         raise 'No package name supplied' unless name
@@ -120,6 +120,7 @@ module Sprinkle
         @verifications = []
         @installers = []
         @instructions = []
+        @delayed_procs = []
         self.instance_eval &block
       end
       def add_user(username, options={},  &block)
@@ -321,6 +322,10 @@ module Sprinkle
 
       def instructions(*messages)
         @instructions += messages
+      end
+
+      def delayed_procs(*procs)
+        @delayed_procs += procs
       end
 
       private
