@@ -253,6 +253,8 @@ module Sprinkle
           installer.defaults(deployment)
           installer.process(roles)
         end
+          puts @instructions.join("\n") if @instructions
+          @delayed_procs.each {|cmd| cmd.call} if @delayed_procs
         
         process_verifications(deployment, roles)
       end

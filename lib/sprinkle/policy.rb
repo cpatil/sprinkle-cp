@@ -90,8 +90,6 @@ module Sprinkle
 
         normalize(all) do |package|
           package.process(deployment, @roles)
-          puts package.instructions.join("\n")
-          package.delayed_procs.each {|cmd| cmd.call}
         end
       end
 
